@@ -183,6 +183,7 @@ if __name__ == "__main__":
                 print(filename)
                 print(split)
         except:
+            print(filename)
             pass
 
     if(WRITE_TO_FILE == True):

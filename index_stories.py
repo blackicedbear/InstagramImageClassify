@@ -1,9 +1,9 @@
 import os
 import pathlib
 import json
+import uuid
 import datetime
 from os.path import exists
-import uuid
 from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.preprocessing import image
@@ -121,7 +121,7 @@ if __name__ == "__main__":
                 image_text = []
                 for text in image_text_raw:
                     image_text.append(text[1][0])
-                time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].replace('m', '')))
+                time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].split('.')[0].replace('m', '')))
                 stories_index_file.append({
                     "id": id,
                     "filename": filename,
@@ -146,6 +146,7 @@ if __name__ == "__main__":
                 print(filename)
                 print(split)
         except:
+            print(filename)
             pass
 
     if(WRITE_TO_FILE == True):
