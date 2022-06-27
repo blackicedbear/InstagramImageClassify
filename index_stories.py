@@ -9,6 +9,7 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.xception import preprocess_input
 from tensorflow.keras.applications.xception import decode_predictions
+from paddleocr import PaddleOCR
 import numpy as np
 
 model = Xception(
@@ -20,6 +21,8 @@ model = Xception(
     classes=1000,
     classifier_activation="softmax",
 )
+
+ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
 WRITE_TO_FILE = True
 
@@ -79,6 +82,10 @@ if __name__ == "__main__":
                 predictionLabelNew = []
                 for x in predictionLabel[0]:
                     predictionLabelNew.append(x[1])
+                image_text_raw = ocr.ocr("stories/" + split[0] + "/" + filename, cls=True)
+                image_text = []
+                for text in image_text_raw:
+                    image_text.append(text[1][0])
                 time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].replace('m', '')), int(split[6].split('.')[0].replace('s', '')))
                 stories_index_file.append({
                     "id": id,
@@ -87,6 +94,7 @@ if __name__ == "__main__":
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
                     "fdatetime": str(time),
                     "timestamp": time.timestamp(),
+                    "image_text": image_text,
                     "tags": predictionLabelNew
                 })
                 stories_index_file_new.append({
@@ -96,6 +104,7 @@ if __name__ == "__main__":
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
                     "fdatetime": str(time),
                     "timestamp": time.timestamp(),
+                    "image_text": image_text,
                     "tags": predictionLabelNew
                 })
             elif (len(split) == 6):
@@ -108,6 +117,10 @@ if __name__ == "__main__":
                 predictionLabelNew = []
                 for x in predictionLabel[0]:
                     predictionLabelNew.append(x[1])
+                image_text_raw = ocr.ocr("stories/" + split[0] + "/" + filename, cls=True)
+                image_text = []
+                for text in image_text_raw:
+                    image_text.append(text[1][0])
                 time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].replace('m', '')))
                 stories_index_file.append({
                     "id": id,
@@ -116,6 +129,7 @@ if __name__ == "__main__":
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
                     "fdatetime": str(time),
                     "timestamp": time.timestamp(),
+                    "image_text": image_text,
                     "tags": predictionLabelNew
                 })
                 stories_index_file_new.append({
@@ -125,6 +139,7 @@ if __name__ == "__main__":
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
                     "fdatetime": str(time),
                     "timestamp": time.timestamp(),
+                    "image_text": image_text,
                     "tags": predictionLabelNew
                 })
             else:
@@ -136,9 +151,9 @@ if __name__ == "__main__":
     if(WRITE_TO_FILE == True):
         print("Aktualisiere stories_index.json...")
         f = open("stories_index.json", "w")
-        f.write(str(stories_index_file).replace('(', '{').replace(')', '}').replace("'", '"'))
+        f.write(json.dumps(stories_index_file))
         f.close()
         fn = open("stories_index_new.json", "w")
-        fn.write(str(stories_index_file_new).replace('(', '{').replace(')', '}').replace("'", '"'))
+        fn.write(json.dumps(stories_index_file_new))
         fn.close()
         print("stories_index.json wurde aktualisiert.")
