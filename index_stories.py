@@ -3,6 +3,7 @@ import pathlib
 import json
 import datetime
 from os.path import exists
+import uuid
 from tensorflow.keras.applications.xception import Xception
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.preprocessing import image
@@ -56,6 +57,7 @@ if __name__ == "__main__":
             pass
     print("Dateiliste eingelesen.")
 
+    stories_index_file_new = []
     if stories_index_file_exists == True:
         try:
             new_files = set(file_list) ^ set(file_list_json)
@@ -66,6 +68,7 @@ if __name__ == "__main__":
     for filename in new_files:
         try:
             split = filename.split("-")
+            id = uuid.uuid4().hex
             if (len(split) == 7):
                 image1 = image.load_img("stories/" + split[0] + "/" + filename, target_size = (299, 299))
                 transformedImage = image.img_to_array(image1)
@@ -78,6 +81,16 @@ if __name__ == "__main__":
                     predictionLabelNew.append(x[1])
                 time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].replace('m', '')), int(split[6].split('.')[0].replace('s', '')))
                 stories_index_file.append({
+                    "id": id,
+                    "filename": filename,
+                    "profile": split[0],
+                    "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
+                    "fdatetime": str(time),
+                    "timestamp": time.timestamp(),
+                    "tags": predictionLabelNew
+                })
+                stories_index_file_new.append({
+                    "id": id,
                     "filename": filename,
                     "profile": split[0],
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
@@ -97,6 +110,16 @@ if __name__ == "__main__":
                     predictionLabelNew.append(x[1])
                 time = datetime.datetime(int(split[1]), int(split[2]), int(split[3]), int(split[4].replace('h', '')), int(split[5].replace('m', '')))
                 stories_index_file.append({
+                    "id": id,
+                    "filename": filename,
+                    "profile": split[0],
+                    "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
+                    "fdatetime": str(time),
+                    "timestamp": time.timestamp(),
+                    "tags": predictionLabelNew
+                })
+                stories_index_file_new.append({
+                    "id": id,
                     "filename": filename,
                     "profile": split[0],
                     "datetime": time.strftime("%d. %b %Y %H:%M:%S"),
@@ -111,8 +134,11 @@ if __name__ == "__main__":
             pass
 
     if(WRITE_TO_FILE == True):
-        f = open("stories_index.json", "w")
         print("Aktualisiere stories_index.json...")
+        f = open("stories_index.json", "w")
         f.write(str(stories_index_file).replace('(', '{').replace(')', '}').replace("'", '"'))
-        print("stories_index.json wurde aktualisiert.")
         f.close()
+        fn = open("stories_index_new.json", "w")
+        fn.write(str(stories_index_file_new).replace('(', '{').replace(')', '}').replace("'", '"'))
+        fn.close()
+        print("stories_index.json wurde aktualisiert.")
