@@ -28,24 +28,23 @@ WRITE_TO_FILE = True
 
 if __name__ == "__main__":
     print("Lese JSON datei ein...")
+    file_list_json = []
+    stories_index_file = []
     if exists("stories_index.json"):
         print("JSON Datei vorhanden! (stories_index.json)")
         try:
             f = open("stories_index.json", "r")
             contents = f.read()
             stories_index_file = json.loads(str(contents))
-            file_list_json = []
             for x in stories_index_file:
                 file_list_json.append(x['filename'])
             stories_index_file_exists = True
             print("JSON Datei eingelesen.")
         except:
-            stories_index_file = []
             stories_index_file_exists = False
             print("Fehler beim einlesen der Datei...")
     else:
         print("JSON Datei fehlt... Erstelle stories_index.json")
-        stories_index_file = []
         stories_index_file_exists = False
 
     print("Lese Dateiliste ein...")
@@ -62,12 +61,14 @@ if __name__ == "__main__":
 
     stories_index_file_new = []
     if stories_index_file_exists == True:
-        try:
-            new_files = set(file_list) ^ set(file_list_json)
-        except:
-            pass
+        new_files = set(file_list) ^ set(file_list_json)
     else:
         new_files = file_list
+
+    print("--- Info ---")
+    print("Total new: " + str(len(new_files)))
+    print("File list: " + str(len(file_list)))
+    print("In JSON: " + str(len(file_list_json)))
     for filename in new_files:
         try:
             split = filename.split("-")
@@ -146,7 +147,9 @@ if __name__ == "__main__":
                 print(filename)
                 print(split)
         except:
+            print("--- Fehler ---")
             print(filename)
+            print("--- Fehler ---")
             pass
 
     if(WRITE_TO_FILE == True):
